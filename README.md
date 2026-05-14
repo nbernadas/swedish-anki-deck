@@ -6,6 +6,8 @@ A frequency-based Swedish learning deck for Anki built using AI-generated exampl
 
 [Anki](https://apps.ankiweb.net/) is an open-source spaced repetition system (SRS) used for long-term memorization. It is widely used for language learning thanks to its customizable flashcards and adaptive review scheduling.
 
+Access to the deck [here](https://ankiweb.net/shared/info/1992299061).
+
 ## Features
 
 - Swedish vocabulary from A1 to C2
