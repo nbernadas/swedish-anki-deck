@@ -9,6 +9,7 @@ A frequency-based Swedish learning deck for Anki built using AI-generated exampl
 Access to the deck [here](https://ankiweb.net/shared/info/1992299061).
 
 ![Descripció de la imatge](sample.png)
+<img src="sample.png" width="300">
 
 ## Features
 
