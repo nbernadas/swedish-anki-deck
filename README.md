@@ -8,6 +8,8 @@ A frequency-based Swedish learning deck for Anki built using AI-generated exampl
 
 Access to the deck [here](https://ankiweb.net/shared/info/1992299061).
 
+[sample.png]
+
 ## Features
 
 - Swedish vocabulary from A1 to C2
