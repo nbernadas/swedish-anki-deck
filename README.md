@@ -36,6 +36,18 @@ This project started as a personal attempt to build a more systematic Swedish le
 - automation workflows
 - Anki note engineering
 
+## Included Scripts
+
+Some utility scripts used during the deck creation process are included in this repository.
+
+These scripts are not intended to represent production-quality software. Most were written incrementally and with the help of AI as internal tooling to automate repetitive tasks such as:
+- sentence generation
+- audio generation
+- vocabulary enrichment
+- formatting and data cleanup
+
+They are provided mainly for transparency and reproducibility purposes.
+
 ## Tech Stack
 
 - Anki
