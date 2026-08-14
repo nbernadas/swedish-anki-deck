@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Secrets and local settings
+.env
+.env.*
+!.env.example
+*.key
+
+# Generated lexical data, reports, and audio
+cache/
+audio/
+review/
+*.jsonl
+*.anki2
+*.anki21b
+collection.media/
+
+# Anki exports and large media
+*.apkg
+*.colpkg
+*.mp3
+
+# Editor and operating-system files
+.DS_Store
+Thumbs.db
+.vscode/
