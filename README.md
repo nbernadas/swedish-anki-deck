@@ -70,7 +70,10 @@ Generated content is deliberately kept out of this repository. See
 │   └── data-policy.md      # Data, media, credentials, and licensing boundaries
 ├── scripts/
 │   ├── azure_tts_examples.py       # Azure MP3 generation for first examples
+│   ├── apitojson.py                # Kelly List + dictionary API -> entry JSON
+│   ├── enrich_json.py              # Auditable OpenAI Batch enrichment workflow
 │   ├── expressions_to_json.py      # Reviewed expression workbook -> JSON
+│   ├── redo_flagged_audio.py       # Targeted repair for reviewed audio issues
 │   └── verify_frequency_order.py   # Read-only rank integrity audit
 ├── sample.png              # Screenshot from the earlier public edition
 └── README.md
