@@ -2,7 +2,8 @@
 
 These scripts are small, command-line building blocks from the production
 pipeline. They intentionally operate on local data folders which are *not*
-included in this repository.
+included in this repository. The files in `garbage/` from the original working
+folder were one-off profile migrations and are intentionally not published.
 
 The expected JSON shape is documented in [`../docs/architecture.md`](../docs/architecture.md).
 Every script defaults to a dry or read-only action unless its command explicitly
@@ -11,22 +12,36 @@ creates output.
 ## Typical workflow
 
 ```powershell
-# 1. Convert a reviewed workbook of idioms and particle verbs to JSON.
+# 1. Normalize a Kelly List workbook. This is the historical source-import
+# script; it expects kelly_list.xls and writes to cache/json.
+python scripts/apitojson.py
+
+# 2. Convert a reviewed workbook of idioms and particle verbs to JSON.
 python scripts/expressions_to_json.py --input path\\to\\expressions.xlsx --output data\\expressions
 
-# 2. Inspect Azure TTS work before using any service credits.
+# 3. Propose LLM enrichment without changing the JSON source files.
+python scripts/enrich_json.py propose --help
+
+# 4. Inspect Azure TTS work before using any service credits.
 python scripts/azure_tts_examples.py --source data\\json --output build\\audio --dry-run
 
-# 3. Generate audio after setting the two environment variables shown in .env.example.
+# 5. Generate audio after setting the two environment variables shown in .env.example.
 python scripts/azure_tts_examples.py --source data\\json --output build\\audio --synthesize
 
-# 4. Verify that the JSON rank sequence is complete and unambiguous.
+# 6. Regenerate the two explicitly flagged clips (optional repair utility).
+python scripts/redo_flagged_audio.py
+
+# 7. Verify that the JSON rank sequence is complete and unambiguous.
 python scripts/verify_frequency_order.py --source data\\json
 ```
 
 `azure_tts_examples.py` produces one MP3 for the first example sentence in each
 JSON entry. It has retry handling and a conservative F0-friendly default pace of
 19 requests per minute.
+
+`redo_flagged_audio.py` contains two documented, Swedish-text overrides for
+audio corrections and can optionally replace the matching media files through a
+locally running AnkiConnect instance.
 
 ## Notes on the private production tooling
 
