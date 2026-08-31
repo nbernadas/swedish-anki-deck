@@ -1,126 +1,67 @@
 # Swedish Vocabulary A1–C2 for Anki
 
-An open, reproducible pipeline for building a Swedish vocabulary deck from the
-Kelly List. The current edition combines frequency-ranked vocabulary, separate
-Anki fields, Swedish example audio, inflection data, particle verbs, and
-idiomatic expressions.
+The source code behind a Swedish vocabulary deck ordered by frequency. The
+published deck contains **8,551 notes**: 8,420 Kelly List entries, 87 particle
+verbs, and 44 idiomatic expressions.
 
-> **Project status:** the published deck is a new unified edition, not a
-> drop-in update for the earlier three-part releases. See
-> [Migration notes](#migration-from-the-three-part-edition).
+Each card can include an English meaning, up to two Swedish example sentences
+with translations, available inflections, and audio for the first example.
 
-## What the published deck contains
+## What is in this repository
 
-| Component | Count |
-| --- | ---: |
-| Kelly List vocabulary notes | 8,420 |
-| Particle verbs | 87 |
-| Idiomatic expressions | 44 |
-| Total notes | 8,551 |
-| Swedish example-audio clips | 8,550 |
+- `scripts/` — the Python tools used to build and check the deck.
+- `.env.example` — the names of the optional API settings.
+- `requirements.txt` — Python dependencies.
 
-Each note stores the word, two possible senses, Swedish examples, English
-translations, audio, available inflections, and a stable `Frequency Order`.
-The rank is shown on-card as `#rank / 8551`.
+The generated JSON files, MP3 audio, Anki collection, and `.apkg` export are
+not committed. They are build outputs and may be published separately later.
+Never commit API keys or an Anki collection containing personal review data.
 
-## Why this project exists
-
-Public Swedish decks often trade completeness for structure: frequency order,
-audio, example quality, grammatical information, and card customization are
-usually handled separately. This project treats deck construction as a data
-pipeline instead of a one-off export.
-
-The goal is a deck that is useful to learners and also inspectable: every
-automated enrichment step can be audited, rerun, or replaced.
-
-## Pipeline
+## How the deck is made
 
 ```text
-Kelly List (.xls)
-   -> normalized entry JSON
-   -> dictionary enrichment and inflections
-   -> LLM completion of missing definitions/examples/translations
-   -> Azure Swedish text-to-speech
-   -> reviewed Anki notes and media
+Kelly List → entry JSON → dictionary/LLM enrichment → Azure audio → Anki
 ```
 
-The implementation is documented in [docs/architecture.md](docs/architecture.md).
+The scripts are independent building blocks rather than a one-click installer:
 
-## Data sources and services
+| Script | Purpose |
+| --- | --- |
+| `apitojson.py` | Imports the Kelly List and obtains baseline dictionary data. |
+| `enrich_json.py` | Proposes missing definitions, examples, and translations through the OpenAI Batch API. |
+| `expressions_to_json.py` | Converts the reviewed idioms/particle-verbs spreadsheet to JSON. |
+| `azure_tts_examples.py` | Generates Swedish MP3s for first example sentences. |
+| `redo_flagged_audio.py` | Recreates two individually corrected audio clips. |
+| `verify_frequency_order.py` | Checks frequency ranks without changing data. |
 
-- **Kelly List**, Språkbanken, University of Gothenburg: frequency order,
-  CEFR level, headword, and grammatical metadata.
-- **Free Dictionary API**: baseline lexical data and available inflections.
-- **OpenAI GPT-5.4 mini**: missing definitions, example sentences, and English
-  translations. The enrichment run generated 1,545 definitions across 1,119
-  entries where source data lacked a definition.
-- **Microsoft Azure Speech** (`sv-SE-SofieNeural`): 8,550 Swedish audio clips.
+Install the dependencies with:
 
-Generated content is deliberately kept out of this repository. See
-[docs/data-policy.md](docs/data-policy.md) for the rationale.
-
-## Repository layout
-
-```text
-.
-├── anki_split_fields.py    # Earlier compatibility utility (kept for history)
-├── anki_wiktionary.py      # Earlier dictionary-enrichment experiment
-├── docs/
-│   ├── architecture.md     # Current pipeline and design decisions
-│   └── data-policy.md      # Data, media, credentials, and licensing boundaries
-├── scripts/
-│   ├── azure_tts_examples.py       # Azure MP3 generation for first examples
-│   ├── apitojson.py                # Kelly List + dictionary API -> entry JSON
-│   ├── enrich_json.py              # Auditable OpenAI Batch enrichment workflow
-│   ├── expressions_to_json.py      # Reviewed expression workbook -> JSON
-│   ├── redo_flagged_audio.py       # Targeted repair for reviewed audio issues
-│   └── verify_frequency_order.py   # Read-only rank integrity audit
-├── sample.png              # Screenshot from the earlier public edition
-└── README.md
+```powershell
+python -m pip install -r requirements.txt
 ```
 
-The original scripts are retained to document the project’s evolution. The
-reusable operational scripts are under `scripts/`; the raw JSON cache,
-generated audio, user collection, API credentials, and packaged decks remain
-deliberately private.
+For OpenAI or Azure steps, copy `.env.example` to a local `.env` file and add
+your own credentials. The source files document their command-line options:
 
-## Reproducibility and safety
-
-The operational scripts use environment variables for paid services; never
-commit keys. Typical local variables are:
-
-```text
-OPENAI_API_KEY=
-AZURE_SPEECH_KEY=
-AZURE_SPEECH_REGION=
+```powershell
+python scripts/enrich_json.py --help
+python scripts/azure_tts_examples.py --help
 ```
 
-Large/generated artifacts such as `cache/`, `audio/`, `.apkg` files, Anki
-collections, and review reports are excluded from version control. This keeps
-the repository lightweight and prevents accidental publication of personal
-study data or service credentials.
+## Sources and generated content
 
-## Migration from the three-part edition
+- **Kelly List** (Språkbanken, University of Gothenburg): frequency rank, CEFR
+  level, headword, and grammatical metadata.
+- **Free Dictionary API / Wiktionary**: baseline lexical data and inflections.
+- **OpenAI GPT-5.4 mini**: only fills missing definitions, examples, and
+  English translations; existing definitions are retained.
+- **Azure Speech, `sv-SE-SofieNeural`**: Swedish example-sentence audio.
 
-The previous releases were published as separate Part 1–3 decks. This edition
-uses a unified hierarchy and redesigned note types with separate fields for
-examples, translations, audio, inflections, and rank.
-
-Because Anki cannot reliably update previously imported notes after a note type
-changes, users should import this edition as a new deck rather than merge it
-into an older Part 1–3 installation. Users who already know a portion of the
-vocabulary can suspend those cards or use Anki’s **Set Due Date** command to
-place them directly in the review queue.
-
-## Limitations
-
-- Dictionary and LLM-generated material can contain mistakes. Learner feedback
-  and corrections are welcome.
-- The Kelly source contains five duplicate rows with identical word/article/POS
-  identity; the deck stores one note for each unique entry.
-- Audio is generated speech, not human studio recording.
+Generated material can contain errors. Corrections are welcome: open an issue
+with the Swedish headword, the proposed correction, and a source if possible.
 
 ## License
 
-The code in this repository is released under the MIT License. Source datasets,
-generated deck content, and external services remain subject to their own terms.
+The code is released under the [MIT License](LICENSE). Source data and
+generated deck content remain subject to the terms of their respective sources
+and services.
